@@ -1,0 +1,472 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#10111a">
+<title>Psych Engine → V-Slice | Mod Converter</title>
+<style>
+:root{--bg:#0b0c12;--panel:#131522;--panel2:#191b2b;--line:#292c42;--text:#f4f5ff;--muted:#a6a9c0;--accent:#ff4f9a;--accent2:#8b6cff;--ok:#63e6be;--warn:#ffd166;--err:#ff6b6b}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 15% 0,#25132a 0,#0b0c12 42%),var(--bg);color:var(--text);font:500 15px/1.45 system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+main{width:min(1050px,100%);margin:auto;padding:24px 14px 50px}.hero{text-align:center;padding:24px 8px 20px}.badge{display:inline-block;padding:6px 11px;border:1px solid #383b56;border-radius:999px;background:#171827;color:#c8cae0;font-size:12px}.hero h1{font-size:clamp(30px,7vw,58px);margin:12px 0 3px;letter-spacing:-2px}.hero h1 span{color:var(--accent)}.hero p{margin:0;color:var(--muted);font-size:16px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}@media(max-width:720px){.grid{grid-template-columns:1fr}}
+.card{background:linear-gradient(180deg,#171927,#11131e);border:1px solid var(--line);border-radius:18px;padding:16px;box-shadow:0 15px 45px #0005}.card h2{font-size:15px;margin:0 0 12px}.filebox{border:1px dashed #454963;border-radius:14px;padding:14px;background:#0f1018}.filebox strong{display:block;margin-bottom:5px}.filename{color:var(--muted);font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}button,.filelabel{appearance:none;border:1px solid #41455f;background:#202338;color:var(--text);padding:12px 15px;border-radius:12px;font:700 14px system-ui;cursor:pointer;transition:.15s transform,.15s background}.filelabel{display:inline-flex;align-items:center;justify-content:center}.filelabel:hover,button:hover{background:#2a2e48;transform:translateY(-1px)}button.primary{background:linear-gradient(135deg,var(--accent),#ff7c70);border:0;color:#160c13;box-shadow:0 8px 25px #ff4f9a33}button.primary:disabled{opacity:.45;cursor:not-allowed;transform:none}input[type=file]{display:none}
+.full{margin-top:14px}.progress{height:13px;background:#0c0d14;border-radius:999px;border:1px solid var(--line);overflow:hidden}.bar{height:100%;width:0;background:linear-gradient(90deg,var(--accent2),var(--accent));transition:width .12s}.pct{display:flex;justify-content:space-between;margin:8px 1px 0;color:var(--muted);font-size:12px}
+.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:12px}@media(max-width:720px){.stats{grid-template-columns:repeat(2,1fr)}}.stat{padding:11px;background:#10111a;border:1px solid var(--line);border-radius:12px}.stat b{display:block;font-size:20px}.stat span{color:var(--muted);font-size:11px}
+.console{height:330px;overflow:auto;background:#08090d;border:1px solid #242738;border-radius:14px;padding:12px;font:12px/1.55 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;white-space:pre-wrap}.log-info{color:#c9cbe0}.log-ok{color:var(--ok)}.log-warn{color:var(--warn)}.log-error{color:var(--err)}.log-success{color:#7cf7c8}
+.notice{padding:11px 13px;border-radius:12px;background:#121522;border:1px solid var(--line);color:var(--muted);font-size:12px;margin-top:12px}.download{display:none;margin-top:14px}.download.show{display:block}.download a{display:block;text-align:center;text-decoration:none;background:linear-gradient(135deg,#61e294,#35c9b4);color:#07130f;padding:13px;border-radius:12px;font-weight:900}
+footer{text-align:center;color:#777b94;font-size:11px;margin-top:22px}
+</style>
+</head>
+<body>
+<main>
+<section class="hero">
+  <div class="badge">LOCAL • OFFLINE • NO UPLOADS</div>
+  <h1>Psych Engine <span>→</span> V-Slice</h1>
+  <p>Mod Converter</p>
+</section>
+
+<section class="grid">
+  <div class="card">
+    <h2>1. Psych Engine mod</h2>
+    <div class="filebox">
+      <strong>Mod ZIP</strong>
+      <div id="modName" class="filename">Nenhum arquivo selecionado</div>
+      <div class="actions"><label class="filelabel" for="modInput">Selecionar Mod .zip</label></div>
+      <input id="modInput" type="file" accept=".zip,application/zip">
+    </div>
+  </div>
+  <div class="card">
+    <h2>2. Templates reais</h2>
+    <div class="filebox">
+      <strong>V-Slice Template</strong>
+      <div id="vsName" class="filename">Tentando carregar automaticamente…</div>
+      <div class="actions"><label class="filelabel" for="vsInput">Selecionar Template Manualmente</label></div>
+      <input id="vsInput" type="file" accept=".zip,application/zip">
+    </div>
+    <div class="filebox" style="margin-top:9px">
+      <strong>Psych Template</strong>
+      <div id="psName" class="filename">Tentando carregar automaticamente…</div>
+      <div class="actions"><label class="filelabel" for="psInput">Selecionar Template Manualmente</label></div>
+      <input id="psInput" type="file" accept=".zip,application/zip">
+    </div>
+  </div>
+</section>
+
+<section class="card full">
+  <div class="actions" style="margin-top:0"><button id="convertBtn" class="primary" disabled>Converter Mod</button></div>
+  <div style="margin-top:15px" class="progress"><div id="bar" class="bar"></div></div>
+  <div class="pct"><span id="stage">Aguardando arquivos…</span><b id="pct">0%</b></div>
+  <div class="stats">
+    <div class="stat"><b id="sAnalyzed">0</b><span>Analisados</span></div>
+    <div class="stat"><b id="sConverted">0</b><span>Convertidos</span></div>
+    <div class="stat"><b id="sCopied">0</b><span>Copiados</span></div>
+    <div class="stat"><b id="sIgnored">0</b><span>Ignorados</span></div>
+    <div class="stat"><b id="sManual">0</b><span>Conversão manual</span></div>
+  </div>
+</section>
+
+<section class="card full">
+  <h2>Console / Log</h2>
+  <div id="console" class="console">[INFO] O processamento acontece somente neste dispositivo.</div>
+  <div class="notice">O navegador pode bloquear <code>../Templates/</code> quando este HTML é aberto via <code>file://</code>. Nesse caso, use os dois botões de seleção manual acima.</div>
+  <div id="downloadBox" class="download"><a id="downloadLink" download="Mod_VSlice.zip">Download Mod_VSlice.zip</a></div>
+</section>
+<footer>Psych Engine → V-Slice Converter • conversão local no navegador</footer>
+</main>
+
+<script>
+"use strict";
+
+/* ------------------------------------------------------------------
+   Minimal offline ZIP reader/writer.
+   - Reads normal ZIP archives with stored (0) or deflate (8) entries.
+   - Uses the browser's built-in DecompressionStream for deflate.
+   - Writes the generated archive with stored entries, so no external
+     ZIP library or network request is required.
+------------------------------------------------------------------ */
+
+const enc = new TextEncoder(), dec = new TextDecoder("utf-8");
+function u16(d,o){return d.getUint16(o,true)}
+function u32(d,o){return d.getUint32(o,true)}
+function ascii(d,o,n){return String.fromCharCode(...d.slice(o,o+n))}
+function findEOCD(b){
+  for(let i=b.length-22;i>=Math.max(0,b.length-22-65557);i--){
+    if(b[i]===0x50&&b[i+1]===0x4b&&b[i+2]===0x05&&b[i+3]===0x06)return i;
+  }
+  throw new Error("ZIP central directory não encontrada.");
+}
+async function inflateRaw(bytes){
+  if(!("DecompressionStream" in window)) throw new Error("Este navegador não oferece DecompressionStream. Atualize o Chrome/Edge do Android.");
+  const ds=new DecompressionStream("deflate-raw");
+  const ab=await new Response(new Blob([bytes]).stream().pipeThrough(ds)).arrayBuffer();
+  return new Uint8Array(ab);
+}
+async function readZip(input){
+  const b=new Uint8Array(await input.arrayBuffer()), d=new DataView(b.buffer,b.byteOffset,b.byteLength);
+  const e=findEOCD(b), count=u16(d,e+10), cdSize=u32(d,e+12), cdOff=u32(d,e+16);
+  const entries=[]; let p=cdOff;
+  for(let i=0;i<count;i++){
+    if(u32(d,p)!==0x02014b50) throw new Error("Entrada ZIP inválida no diretório central.");
+    const flags=u16(d,p+8), method=u16(d,p+10), csize=u32(d,p+20), usize=u32(d,p+24);
+    const nlen=u16(d,p+28), xlen=u16(d,p+30), clen=u16(d,p+32), lhoff=u32(d,p+42);
+    const nb=b.slice(p+46,p+46+nlen);
+    let name=((flags&0x800)?dec:dec).decode(nb).replace(/\\/g,"/");
+    const ld=new DataView(b.buffer,b.byteOffset,b.byteLength);
+    const ln=u16(ld,lhoff+26), lx=u16(ld,lhoff+28);
+    const start=lhoff+30+ln+lx, raw=b.slice(start,start+csize);
+    entries.push({name,method,csize,usize,raw,isDir:name.endsWith("/")});
+    p+=46+nlen+xlen+clen;
+  }
+  async function get(entry){
+    if(entry.isDir)return new Uint8Array();
+    if(entry.method===0)return entry.raw.slice();
+    if(entry.method===8)return inflateRaw(entry.raw);
+    throw new Error("Método de compressão ZIP não suportado: "+entry.method);
+  }
+  return {entries,get,bytes:b};
+}
+
+function crc32(bytes){
+  let table=crc32.table;
+  if(!table){table=new Uint32Array(256);for(let n=0;n<256;n++){let c=n;for(let k=0;k<8;k++)c=(c&1)?(0xedb88320^(c>>>1)):(c>>>1);table[n]=c>>>0}crc32.table=table}
+  let c=0xffffffff;for(const x of bytes)c=table[(c^x)&255]^(c>>>8);return (c^0xffffffff)>>>0;
+}
+function put16(a,n){a.push(n&255,(n>>>8)&255)}
+function put32(a,n){a.push(n&255,(n>>>8)&255,(n>>>16)&255,(n>>>24)&255)}
+function zipWrite(files){
+  const out=[], central=[], now=new Date();
+  const dosTime=(now.getHours()<<11)|(now.getMinutes()<<5)|Math.floor(now.getSeconds()/2);
+  const dosDate=((now.getFullYear()-1980)<<9)|((now.getMonth()+1)<<5)|now.getDate();
+  let offset=0;
+  for(const f of files){
+    const nb=enc.encode(f.name), data=f.data instanceof Uint8Array?f.data:new Uint8Array(f.data), c=crc32(data);
+    const h=[];put32(h,0x04034b50);put16(h,20);put16(h,0x800);put16(h,0);put16(h,dosTime);put16(h,dosDate);put32(h,c);put32(h,data.length);put32(h,data.length);put16(h,nb.length);put16(h,0);
+    out.push(...h,...nb,...data);
+    const ch=[];put32(ch,0x02014b50);put16(ch,20);put16(ch,20);put16(ch,0x800);put16(ch,0);put16(ch,dosTime);put16(ch,dosDate);put32(ch,c);put32(ch,data.length);put32(ch,data.length);put16(ch,nb.length);put16(ch,0);put16(ch,0);put16(ch,0);put16(ch,0);put32(ch,0);put32(ch,offset);
+    central.push(...ch,...nb); offset+=h.length+nb.length+data.length;
+  }
+  const cdOffset=offset, cdSize=central.length; out.push(...central);
+  const e=[];put32(e,0x06054b50);put16(e,0);put16(e,0);put16(e,files.length);put16(e,files.length);put32(e,cdSize);put32(e,cdOffset);put16(e,0);out.push(...e);
+  return new Uint8Array(out);
+}
+
+/* ------------------------------------------------------------------ */
+
+const $=id=>document.getElementById(id);
+const state={mod:null,vs:null,ps:null,vsFile:null,psFile:null,modFile:null, stats:{analyzed:0,converted:0,copied:0,ignored:0,manual:0}, report:[], out:[]};
+
+function log(type,msg){
+  const line=document.createElement("div");line.className="log-"+type.toLowerCase();line.textContent=`[${type}] ${msg}`;$("console").appendChild(line);$("console").scrollTop=$("console").scrollHeight;
+}
+function setProgress(p,label){p=Math.max(0,Math.min(100,p));$("bar").style.width=p+"%";$("pct").textContent=Math.round(p)+"%";if(label)$("stage").textContent=label}
+function statReset(){state.stats={analyzed:0,converted:0,copied:0,ignored:0,manual:0};updateStats()}
+function updateStats(){for(const [k,id] of [["analyzed","sAnalyzed"],["converted","sConverted"],["copied","sCopied"],["ignored","sIgnored"],["manual","sManual"]])$(id).textContent=state.stats[k]}
+function warn(msg){log("WARN",msg);state.report.push("[WARN] "+msg);state.stats.manual++;updateStats()}
+function errorReport(msg){log("ERROR",msg);state.report.push("[ERROR] "+msg)}
+function norm(p){return p.replace(/\\/g,"/").replace(/^\.\/+/,"").replace(/^\/+/,"")}
+function lower(p){return norm(p).toLowerCase()}
+function basename(p){return norm(p).split("/").pop()}
+function stem(p){return basename(p).replace(/\.[^.]+$/,"")}
+function stripRoot(p){let s=norm(p), a=s.split("/");return a.length>1?a.slice(1).join("/"):s}
+function addOut(name,data){state.out.push({name:norm(name),data})}
+function jsonPretty(o){return JSON.stringify(o,null,2)+"\n"}
+
+async function readTemplateInfo(z,label){
+  log("INFO","Analisando template "+label+"...");
+  const map=new Map();
+  for(const e of z.entries){if(e.isDir||e.name.startsWith("__MACOSX/")||e.name.includes("/.DS_Store"))continue;map.set(norm(e.name),e)}
+  return map;
+}
+
+function findJsonCandidates(entries){
+  return entries.filter(e=>!e.isDir&&!e.name.startsWith("__MACOSX/")&&lower(e.name).endsWith(".json"));
+}
+function looksLikeChart(name,obj){
+  const s=JSON.stringify(obj).toLowerCase();
+  return /sectionnotes|mustHitSection|scrollspeed|strumlines|notes/.test(s) && /(data|song|chart|songs)/.test(lower(name));
+}
+function detectPsychRoot(entries){
+  const real=entries.filter(e=>!e.isDir&&!e.name.startsWith("__MACOSX/")).map(e=>norm(e.name));
+  const packs=real.filter(x=>basename(x).toLowerCase()==="pack.json");
+  if(packs.length)return packs[0].split("/").slice(0,-1).join("/");
+  const roots={};for(const p of real){const r=p.split("/")[0];roots[r]=(roots[r]||0)+1}
+  const r=Object.entries(roots).sort((a,b)=>b[1]-a[1])[0];return r&&r[1]>2?r[0]:"";
+}
+function joinRoot(root,p){return root?(root+"/"+p).replace(/\/+/g,"/"):p}
+
+function convertPsychChart(src,name,difficulty,templatePath){
+  let song=src.song&&typeof src.song==="object"?src.song:src;
+  const bpm=Number(song.bpm)||120, speed=Number(song.speed??src.scrollSpeed)||1;
+  const lines=[{name:String(song.player2||"dad"),type:"opponent",notes:[]},{name:String(song.player1||"bf"),type:"player",notes:[]}];
+  const sections=Array.isArray(song.notes)?song.notes:(Array.isArray(src.notes)?src.notes:[]);
+  let lastBpm=bpm, events=[];
+  for(const sec of sections){
+    const must=!!sec.mustHitSection;
+    if(sec.bpm!=null && Number(sec.bpm)!==lastBpm){lastBpm=Number(sec.bpm);events.push({time:0,name:"BPM Change",params:[lastBpm]})}
+    for(const n of (sec.sectionNotes||sec.notes||[])){
+      if(!Array.isArray(n))continue;
+      const time=Number(n[0]), raw=Number(n[1]), sustain=Number(n[2])||0;
+      if(!Number.isFinite(time)||!Number.isFinite(raw))continue;
+      let lane=((raw%4)+4)%4, player;
+      if(raw>=4){player=!must}else player=must;
+      const line=lines[player?1:0];
+      line.notes.push({time, data:lane, length:sustain});
+    }
+  }
+  const cleanLines=lines.filter(l=>l.notes.length);
+  const out={
+    version:"2.0.0",
+    generatedBy:"Psych Engine → V-Slice Converter",
+    scrollSpeed:speed,
+    events,
+    noteTypes:[],
+    strumLines:cleanLines
+  };
+  const meta={
+    version:"2.2.4",
+    name:String(song.song||stem(name)),
+    displayName:String(song.song||stem(name)),
+    bpm,
+    beatsPerMeasure:4,
+    stepsPerBeat:4,
+    stage:String(song.stage||"mainStage"),
+    icon:String(song.player2||"dad"),
+    needsVoices:song.needsVoices!==false,
+    difficulties:[difficulty||"normal"],
+    generatedBy:"Psych Engine → V-Slice Converter"
+  };
+  return {chart:out,meta};
+}
+
+function guessDifficulty(path,obj){
+  const b=stem(path).toLowerCase();
+  if(/easy/.test(b))return "easy";if(/normal/.test(b))return "normal";if(/hard/.test(b))return "hard";if(/erect/.test(b))return "erect";if(/nightmare/.test(b))return "nightmare";
+  return "normal";
+}
+
+function targetForAsset(path,root){
+  const rel=norm(path).slice(root?root.length+1:0);
+  const l=lower(rel);
+  if(l.startsWith("images/characters/")) return "shared/images/characters/"+rel.slice("images/characters/".length);
+  if(l.startsWith("images/icons/")) return "images/icons/"+rel.slice("images/icons/".length);
+  if(l.startsWith("images/")) return "shared/images/"+rel.slice("images/".length);
+  if(l.startsWith("music/")) return "music/"+rel.slice("music/".length);
+  if(l.startsWith("sounds/")) return "shared/sounds/"+rel.slice("sounds/".length);
+  if(l.startsWith("fonts/")) return "images/fonts/"+rel.slice("fonts/".length);
+  if(l.startsWith("scripts/")) return "scripts/psych-original/"+rel.slice("scripts/".length);
+  if(l.startsWith("custom_events/")) return "scripts/psych-original/custom_events/"+rel.slice("custom_events/".length);
+  if(l.startsWith("custom_notetypes/")) return "scripts/psych-original/custom_notetypes/"+rel.slice("custom_notetypes/".length);
+  if(l.startsWith("stages/")) return "data/stages/"+rel.slice("stages/".length);
+  if(l.startsWith("characters/")) return "data/characters/"+rel.slice("characters/".length);
+  if(l.startsWith("data/")) return "data/psych-original/"+rel.slice("data/".length);
+  return "psych-original/"+rel;
+}
+
+async function analyzeScripts(modEntries,root){
+  for(const e of modEntries){
+    const l=lower(e.name);
+    if(l.endsWith(".lua")||l.endsWith(".hx")||l.endsWith(".hscript")||l.endsWith(".hxs")){
+      warn("Script requer conversão manual: "+stripRoot(e.name));
+      const data=await state.mod.get(e);addOut("scripts/psych-original/"+stripRoot(e.name),data);
+    }
+  }
+}
+
+async function convertCharacters(modEntries,root){
+  for(const e of modEntries){
+    const l=lower(e.name);
+    if(l.endsWith(".json") && (l.includes("/characters/")||l.includes("/character/"))){
+      try{
+        const obj=JSON.parse(dec.decode(await state.mod.get(e)));
+        if(obj.animations||obj.image||obj.sprite||obj.position||obj.scale){
+          let name=stem(e.name);
+          const out={version:"1.0.0",name,assetPath:"characters/"+name,flipX:!!obj.flipX,singTime:Number(obj.sing_duration||obj.singTime||8),animations:[]};
+          const anims=Array.isArray(obj.animations)?obj.animations:[];
+          for(const a of anims){
+            if(!a||!a.name)continue;
+            out.animations.push({name:a.name,prefix:a.prefix||a.name,offsets:Array.isArray(a.offsets)?a.offsets:[0,0],...(a.looped?{looped:true}:{}),...(a.indices||a.frameIndices?{frameIndices:a.indices||a.frameIndices}: {})});
+          }
+          addOut("data/characters/"+name+".json",enc.encode(jsonPretty(out)));state.stats.converted++;updateStats();
+          continue;
+        }
+      }catch(_){}
+    }
+  }
+}
+
+async function convertStages(modEntries,root){
+  for(const e of modEntries){
+    const l=lower(e.name);
+    if(l.endsWith(".json")&&(l.includes("/stages/")||l.includes("stage"))){
+      try{
+        const obj=JSON.parse(dec.decode(await state.mod.get(e)));
+        if(obj.objects||obj.layers||obj.props||obj.cameraZoom||obj.camera_speed){
+          const out={version:"1.0.0",name:stem(e.name),props:[],cameraZoom:Number(obj.cameraZoom||1),characters:{bf:{zIndex:300,position:[0,0],cameraOffsets:[0,0]},dad:{zIndex:200,position:[0,0],cameraOffsets:[0,0]},gf:{zIndex:100,position:[0,0],cameraOffsets:[0,0]}}};
+          if(Array.isArray(obj.objects))for(const p of obj.objects)out.props.push({name:p.name||"prop",zIndex:Number(p.zIndex||0),position:p.position||[0,0],scale:p.scale||[1,1],assetPath:p.assetPath||p.image||p.name||"",animType:"sparrow",isPixel:false,scroll:p.scroll||[1,1],animations:[]});
+          addOut("data/stages/"+stem(e.name)+".json",enc.encode(jsonPretty(out)));state.stats.converted++;updateStats();continue;
+        }
+      }catch(_){}
+    }
+  }
+}
+
+async function convertEvents(modEntries,root){
+  for(const e of modEntries){
+    const l=lower(e.name);
+    if(l.includes("events")||l.includes("custom_events")){
+      if(l.endsWith(".lua")||l.endsWith(".hx"))continue;
+      try{
+        const obj=JSON.parse(dec.decode(await state.mod.get(e)));
+        const text=JSON.stringify(obj).toLowerCase();
+        if(text.includes("event")){
+          const events=Array.isArray(obj)?obj:(obj.events||[]);
+          for(const ev of events){
+            const nm=ev?.name||ev?.event||ev?.type;
+            if(nm && !["BPM Change","Camera Movement","Alt Animation Toggle"].includes(String(nm)))warn("Evento personalizado não convertido: "+nm);
+          }
+        }
+      }catch(_){}
+    }
+  }
+}
+
+async function convertDialogues(modEntries,root){
+  for(const e of modEntries){
+    const l=lower(e.name);
+    if(!l.endsWith(".json")||!l.includes("dialog"))continue;
+    try{
+      const obj=JSON.parse(dec.decode(await state.mod.get(e)));
+      const target="data/dialogue/conversations/"+stem(e.name)+".json";
+      addOut(target,enc.encode(jsonPretty(obj)));state.stats.converted++;updateStats();
+      log("OK","Diálogo convertido: "+stripRoot(e.name));
+    }catch(_){}
+  }
+}
+
+async function convertCharts(modEntries,root,templateMap){
+  const charts=[];
+  for(const e of modEntries){
+    if(!lower(e.name).endsWith(".json"))continue;
+    try{
+      const raw=dec.decode(await state.mod.get(e)), obj=JSON.parse(raw);
+      if(looksLikeChart(e.name,obj))charts.push({e,obj});
+    }catch(_){}
+  }
+  for(const c of charts){
+    try{
+      const result=convertPsychChart(c.obj,c.e.name,guessDifficulty(c.e.name,c.obj));
+      const songName=(c.obj.song?.song||c.obj.songName||stem(c.e.name)).toString().toLowerCase().replace(/[^a-z0-9_-]+/g,"-");
+      const diff=guessDifficulty(c.e.name,c.obj);
+      addOut(`data/songs/${songName}/${songName}-chart-${diff}.json`,enc.encode(jsonPretty(result.chart)));
+      addOut(`data/songs/${songName}/meta-${diff}.json`,enc.encode(jsonPretty(result.meta)));
+      state.stats.converted+=2;updateStats();log("OK","Chart convertido: "+stripRoot(c.e.name));
+    }catch(err){errorReport("Não foi possível converter: "+stripRoot(c.e.name)+" — "+err.message)}
+  }
+  return charts.length;
+}
+
+async function copyAssets(modEntries,root){
+  for(const e of modEntries){
+    const l=lower(e.name);
+    if(l.endsWith(".json")&&(l.includes("/characters/")||l.includes("/stages/")||looksLikePathForChart(l)))continue;
+    if(l.endsWith(".lua")||l.endsWith(".hx")||l.endsWith(".hscript")||l.endsWith(".hxs"))continue;
+    if(l.includes("readme")||l.endsWith("pack.json"))continue;
+    const rel=stripRoot(e.name);
+    if(rel.startsWith("__MACOSX/")||rel===".DS_Store")continue;
+    const target=targetForAsset(e.name,root);
+    try{addOut(target,await state.mod.get(e));state.stats.copied++;updateStats();}catch(err){errorReport("Falha ao copiar "+rel+" — "+err.message)}
+  }
+}
+function looksLikePathForChart(l){return l.includes("/data/")&&l.endsWith(".json")&&(l.includes("song")||l.includes("chart"))}
+
+async function loadAutoTemplate(path,which){
+  try{
+    const r=await fetch(path,{cache:"no-store"});
+    if(!r.ok)throw new Error("HTTP "+r.status);
+    const blob=await r.blob();
+    const f=new File([blob],path.split("/").pop(),{type:"application/zip"});
+    if(which==="vs"){state.vsFile=f;state.vs=await readZip(f);$("vsName").textContent=f.name;log("OK","V-Slice Template carregado automaticamente.");}
+    else {state.psFile=f;state.ps=await readZip(f);$("psName").textContent=f.name;log("OK","Psych Template carregado automaticamente.");}
+    refreshReady();
+  }catch(_){
+    if(which==="vs")$("vsName").textContent="Não carregado automaticamente — selecione manualmente";
+    else $("psName").textContent="Não carregado automaticamente — selecione manualmente";
+  }
+}
+function refreshReady(){
+  $("convertBtn").disabled=!(state.mod&&state.vs&&state.ps);
+  if(!$("convertBtn").disabled)$("stage").textContent="Pronto para converter.";
+}
+$("modInput").addEventListener("change",async e=>{const f=e.target.files[0];if(!f)return;try{state.modFile=f;state.mod=await readZip(f);$("modName").textContent=f.name;log("OK","Mod carregado: "+f.name);refreshReady()}catch(err){errorReport(err.message)}});
+$("vsInput").addEventListener("change",async e=>{const f=e.target.files[0];if(!f)return;try{state.vsFile=f;state.vs=await readZip(f);$("vsName").textContent=f.name;log("OK","V-Slice Template carregado manualmente.");refreshReady()}catch(err){errorReport(err.message)}});
+$("psInput").addEventListener("change",async e=>{const f=e.target.files[0];if(!f)return;try{state.psFile=f;state.ps=await readZip(f);$("psName").textContent=f.name;log("OK","Psych Template carregado manualmente.");refreshReady()}catch(err){errorReport(err.message)}});
+
+async function convertMod(){
+  statReset();state.report=[];state.out=[];$("downloadBox").classList.remove("show");$("console").textContent="";
+  try{
+    setProgress(2,"Abrindo mod…");log("INFO","Abrindo mod...");
+    const modEntries=state.mod.entries.filter(e=>!e.isDir&&!e.name.startsWith("__MACOSX/")&&!e.name.includes("/.DS_Store"));
+    const root=detectPsychRoot(modEntries);
+    log("INFO","Mod Psych Engine detectado.");
+    setProgress(8,"Analisando templates…");
+    const vsMap=await readTemplateInfo(state.vs,"V-Slice");
+    await readTemplateInfo(state.ps,"Psych");
+    log("INFO","Estrutura V-Slice encontrada: "+vsMap.size+" arquivos.");
+    log("INFO","Estrutura Psych encontrada: "+state.ps.entries.filter(e=>!e.isDir).length+" arquivos.");
+    const total=modEntries.length;state.stats.analyzed=total;updateStats();
+    setProgress(15,"Analisando estrutura do mod…");
+    const charts=await convertCharts(modEntries,root,vsMap);
+    setProgress(35,"Convertendo personagens…");await convertCharacters(modEntries,root);
+    setProgress(50,"Convertendo stages…");await convertStages(modEntries,root);
+    setProgress(60,"Convertendo eventos…");await convertEvents(modEntries,root);
+    setProgress(68,"Convertendo diálogos…");await convertDialogues(modEntries,root);
+    setProgress(75,"Analisando scripts…");await analyzeScripts(modEntries,root);
+    setProgress(82,"Copiando assets compatíveis…");await copyAssets(modEntries,root);
+    log("INFO",`Encontrados ${charts} chart(s).`);
+    /* The V-Slice template is the output base. We preserve every template
+       entry, then overlay generated/contributed mod files on top of it. */
+    const templateEntries=state.vs.entries.filter(e=>!e.isDir&&!e.name.startsWith("__MACOSX/")&&!e.name.includes("/.DS_Store"));
+    const finalMap=new Map();
+    for(const e of templateEntries){
+      finalMap.set(norm(e.name),await state.vs.get(e));
+    }
+    for(const f of state.out)finalMap.set(norm(f.name),f.data);
+    const report=[
+      "Psych Engine → V-Slice Conversion Report",
+      "=========================================",
+      "",
+      "Converter: offline browser application",
+      "Templates: user-supplied V-Slice + Psych templates",
+      "",
+      `Files analyzed: ${state.stats.analyzed}`,
+      `Converted: ${state.stats.converted}`,
+      `Copied: ${state.stats.copied}`,
+      `Ignored: ${state.stats.ignored}`,
+      `Manual conversion: ${state.stats.manual}`,
+      "",
+      ...state.report
+    ].join("\n")+"\n";
+    finalMap.set("conversion_report.txt",enc.encode(report));
+    setProgress(92,"Gerando ZIP…");log("INFO","Gerando ZIP...");
+    const files=[...finalMap.entries()].map(([name,data])=>({name,data}));
+    const zip=zipWrite(files);
+    const blob=new Blob([zip],{type:"application/zip"});
+    const url=URL.createObjectURL(blob);
+    $("downloadLink").href=url;$("downloadLink").download="Mod_VSlice.zip";$("downloadBox").classList.add("show");
+    setProgress(100,"Conversão concluída!");
+    log("SUCCESS","Conversão concluída!");
+    log("INFO",`Arquivos analisados: ${state.stats.analyzed} | Convertidos: ${state.stats.converted} | Copiados: ${state.stats.copied} | Ignorados: ${state.stats.ignored} | Manual: ${state.stats.manual}`);
+  }catch(err){
+    errorReport(err.stack||err.message||String(err));setProgress(100,"Conversão terminou com erro.");
+  }
+}
+$("convertBtn").addEventListener("click",convertMod);
+
+/* Best effort for the requested relative template paths. It is expected to
+   fail when opened directly via file:// on browsers that block fetch(). */
+loadAutoTemplate("Templates/V-Slice_Template.zip","vs");
+loadAutoTemplate("Templates/Psych_Template.zip","ps");
+</script>
+</body>
+</html>
